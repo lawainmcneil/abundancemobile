@@ -1,0 +1,1538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Abundance Financial – Investor Education App Prototype</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary: #1B3A5C;
+      --primary-dark: #0F2640;
+      --accent: #4DB383;
+      --accent-dark: #3A8A64;
+      --accent-light: #E8F6F0;
+      --accent-glow: rgba(77,179,131,0.15);
+      --warm: #D4A843;
+      --warm-light: #FDF6E3;
+      --red: #E05555;
+      --purple: #7C5BB8;
+      --text: #1A1A1C;
+      --text-sec: #5A5A5E;
+      --text-light: #8A8A8E;
+      --bg: #FFFFFF;
+      --bg-light: #F5F6F8;
+      --bg-card: #FFFFFF;
+      --border: #E8E8EC;
+      --shadow: 0 2px 8px rgba(0,0,0,0.06);
+      --shadow-lg: 0 8px 24px rgba(0,0,0,0.1);
+      --radius: 14px;
+      --radius-sm: 10px;
+      --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: #E8EAED;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Page title */
+    .page-title {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    .page-title h1 {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--primary-dark);
+      margin-bottom: 6px;
+    }
+    .page-title p {
+      font-size: 14px;
+      color: var(--text-sec);
+    }
+
+    /* ===== PHONE FRAME ===== */
+    .phone {
+      width: 390px;
+      height: 844px;
+      background: var(--bg);
+      border-radius: 48px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.18), 0 0 0 8px #1a1a1c, 0 0 0 10px #3a3a3c;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Status bar */
+    .status-bar {
+      height: 54px;
+      padding: 14px 28px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg);
+      flex-shrink: 0;
+      z-index: 50;
+    }
+    .status-bar .time {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .status-bar .icons {
+      display: flex;
+      gap: 5px;
+      align-items: center;
+    }
+    .status-bar .icons svg { width: 16px; height: 16px; color: var(--text); }
+
+    /* Dynamic island */
+    .dynamic-island {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 126px;
+      height: 36px;
+      background: #000;
+      border-radius: 20px;
+      z-index: 60;
+    }
+
+    /* ===== SCREEN CONTAINER ===== */
+    .screens {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+    }
+    .screen {
+      position: absolute;
+      inset: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      background: var(--bg-light);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .screen::-webkit-scrollbar { display: none; }
+    .screen.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* ===== TAB BAR ===== */
+    .tab-bar {
+      height: 82px;
+      background: var(--bg);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-around;
+      align-items: flex-start;
+      padding-top: 10px;
+      flex-shrink: 0;
+      z-index: 50;
+    }
+    .tab {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px 12px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .tab svg { width: 24px; height: 24px; color: var(--text-light); transition: color var(--transition); }
+    .tab span { font-size: 10px; font-weight: 500; color: var(--text-light); transition: color var(--transition); }
+    .tab.active svg { color: var(--accent); }
+    .tab.active span { color: var(--accent); font-weight: 600; }
+
+    /* ===== SHARED COMPONENTS ===== */
+    .screen-header {
+      background: var(--bg);
+      padding: 12px 20px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .screen-header h2 {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -0.3px;
+    }
+
+    .search-bar {
+      margin: 16px 20px 0;
+      background: var(--bg-light);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 11px 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .search-bar svg { width: 18px; height: 18px; color: var(--text-light); flex-shrink: 0; }
+    .search-bar input {
+      border: none;
+      background: none;
+      font-size: 14px;
+      font-family: inherit;
+      color: var(--text);
+      outline: none;
+      width: 100%;
+    }
+    .search-bar input::placeholder { color: var(--text-light); }
+
+    .section-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 20px 12px;
+    }
+    .section-title h3 {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .section-title a {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 100px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .tag-green { background: var(--accent-light); color: var(--accent-dark); }
+    .tag-blue { background: #E8F0FE; color: #3B72D9; }
+    .tag-warm { background: var(--warm-light); color: #B08C30; }
+    .tag-purple { background: #F0E6FF; color: var(--purple); }
+    .tag-red { background: #FDE8E8; color: var(--red); }
+    .tag-live { background: var(--red); color: white; }
+
+    /* ===== HOME SCREEN ===== */
+    .home-header {
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      padding: 16px 20px 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    .home-header::after {
+      content: '';
+      position: absolute;
+      right: -40px;
+      top: -40px;
+      width: 160px;
+      height: 160px;
+      background: radial-gradient(circle, rgba(77,179,131,0.2), transparent 70%);
+      border-radius: 50%;
+    }
+    .home-greeting {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+      position: relative;
+      z-index: 1;
+    }
+    .home-greeting h2 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 15px;
+    }
+    .home-sub {
+      font-size: 14px;
+      color: rgba(255,255,255,0.6);
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Logo in header */
+    .app-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+      position: relative;
+      z-index: 1;
+    }
+    .app-logo svg { height: 28px; width: auto; }
+    .app-logo-text {
+      display: flex;
+      flex-direction: column;
+      line-height: 1;
+    }
+    .app-logo-name {
+      font-size: 13px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    .app-logo-sub {
+      font-size: 7px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.45);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    /* Featured video card */
+    .featured-video {
+      margin: -12px 20px 0;
+      position: relative;
+      z-index: 5;
+    }
+    .featured-card {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+    }
+    .featured-thumb {
+      height: 190px;
+      background: linear-gradient(135deg, #0F2640, #1B3A5C);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      cursor: pointer;
+    }
+    .featured-thumb::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 30% 50%, rgba(77,179,131,0.15), transparent 60%);
+    }
+    .play-btn {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.95);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      transition: transform var(--transition);
+    }
+    .featured-thumb:hover .play-btn { transform: scale(1.08); }
+    .play-btn svg { width: 24px; height: 24px; color: var(--primary-dark); margin-left: 3px; }
+    .featured-duration {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      background: rgba(0,0,0,0.7);
+      color: white;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 6px;
+      z-index: 2;
+    }
+    .featured-label {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      z-index: 2;
+    }
+    .featured-body {
+      padding: 16px;
+    }
+    .featured-body h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.35;
+      margin-bottom: 6px;
+    }
+    .featured-body p {
+      font-size: 13px;
+      color: var(--text-sec);
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+    .featured-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+      color: var(--text-light);
+    }
+    .featured-meta span { display: flex; align-items: center; gap: 3px; }
+    .featured-meta svg { width: 13px; height: 13px; }
+
+    /* Quick category pills */
+    .category-scroll {
+      display: flex;
+      gap: 8px;
+      padding: 0 20px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      margin-top: 20px;
+    }
+    .category-scroll::-webkit-scrollbar { display: none; }
+    .cat-pill {
+      padding: 8px 16px;
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 500;
+      white-space: nowrap;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text-sec);
+      cursor: pointer;
+      transition: all var(--transition);
+      flex-shrink: 0;
+    }
+    .cat-pill.active {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    /* Continue watching row */
+    .continue-row {
+      display: flex;
+      gap: 12px;
+      padding: 0 20px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .continue-row::-webkit-scrollbar { display: none; }
+    .continue-card {
+      flex-shrink: 0;
+      width: 200px;
+      background: var(--bg-card);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      transition: transform var(--transition);
+    }
+    .continue-card:hover { transform: translateY(-2px); }
+    .continue-thumb {
+      height: 112px;
+      background: linear-gradient(135deg, #142E4A, #2A5580);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .continue-thumb .mini-play {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .continue-thumb .mini-play svg { width: 14px; height: 14px; color: var(--primary-dark); margin-left: 2px; }
+    .progress-bar-bg {
+      height: 3px;
+      background: var(--border);
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 2px;
+    }
+    .continue-info {
+      padding: 10px 12px;
+    }
+    .continue-info h4 {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.35;
+      margin-bottom: 4px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .continue-info p { font-size: 11px; color: var(--text-light); }
+
+    /* Upcoming workshop card */
+    .workshop-card {
+      margin: 0 20px;
+      background: linear-gradient(135deg, var(--accent-dark), var(--accent));
+      border-radius: var(--radius);
+      padding: 18px;
+      color: white;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+    }
+    .workshop-card::after {
+      content: '';
+      position: absolute;
+      right: -20px;
+      bottom: -20px;
+      width: 100px;
+      height: 100px;
+      background: radial-gradient(circle, rgba(255,255,255,0.1), transparent 70%);
+      border-radius: 50%;
+    }
+    .workshop-card .wk-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      opacity: 0.7;
+      margin-bottom: 8px;
+    }
+    .workshop-card h4 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+    .workshop-card p {
+      font-size: 12px;
+      opacity: 0.75;
+      margin-bottom: 14px;
+    }
+    .workshop-card .wk-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.25);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      color: white;
+      backdrop-filter: blur(4px);
+    }
+    .workshop-card .wk-cta svg { width: 14px; height: 14px; }
+
+    /* ===== LIBRARY SCREEN ===== */
+    .lib-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      padding: 0 20px 20px;
+    }
+    .lib-card {
+      background: var(--bg-card);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      transition: transform var(--transition);
+    }
+    .lib-card:hover { transform: translateY(-2px); }
+    .lib-thumb {
+      height: 96px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .lib-thumb .mini-play {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .lib-thumb .mini-play svg { width: 12px; height: 12px; color: var(--primary-dark); margin-left: 2px; }
+    .lib-thumb .lib-dur {
+      position: absolute;
+      bottom: 6px;
+      right: 6px;
+      background: rgba(0,0,0,0.65);
+      color: white;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .lib-body {
+      padding: 10px 12px;
+    }
+    .lib-body h4 {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.35;
+      margin-bottom: 4px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .lib-body .lib-meta {
+      font-size: 11px;
+      color: var(--text-light);
+    }
+
+    /* Topic icons in library */
+    .topic-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      padding: 0 20px;
+      margin-bottom: 6px;
+    }
+    .topic-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 14px 4px;
+      background: var(--bg-card);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all var(--transition);
+      border: 1px solid var(--border);
+    }
+    .topic-item:hover { border-color: var(--accent); }
+    .topic-item .topic-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .topic-item .topic-icon svg { width: 20px; height: 20px; }
+    .topic-item span { font-size: 10.5px; font-weight: 600; color: var(--text-sec); text-align: center; line-height: 1.2; }
+
+    /* ===== PLAYER SCREEN ===== */
+    .player-video {
+      width: 100%;
+      background: #000;
+      position: relative;
+      overflow: hidden;
+    }
+    .player-video video {
+      width: 100%;
+      max-height: 300px;
+      display: block;
+      object-fit: contain;
+      background: #000;
+    }
+    .player-info {
+      background: var(--bg);
+      padding: 20px;
+    }
+    .player-info .tag { margin-bottom: 10px; }
+    .player-info h2 {
+      font-size: 19px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.35;
+      margin-bottom: 8px;
+    }
+    .player-info p {
+      font-size: 14px;
+      color: var(--text-sec);
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+    .player-actions {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+    .player-action-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 10px 16px;
+      background: var(--bg-light);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background var(--transition);
+    }
+    .player-action-btn:hover { background: var(--accent-light); }
+    .player-action-btn svg { width: 20px; height: 20px; color: var(--text-sec); }
+    .player-action-btn span { font-size: 11px; font-weight: 500; color: var(--text-sec); }
+
+    .player-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 16px 20px;
+    }
+
+    /* Up next list */
+    .up-next-item {
+      display: flex;
+      gap: 12px;
+      padding: 10px 20px;
+      cursor: pointer;
+      transition: background var(--transition);
+    }
+    .up-next-item:hover { background: rgba(0,0,0,0.02); }
+    .up-next-thumb {
+      width: 120px;
+      height: 68px;
+      border-radius: 8px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .up-next-thumb .mini-play {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .up-next-thumb .mini-play svg { width: 10px; height: 10px; color: var(--primary-dark); margin-left: 1px; }
+    .up-next-info { flex: 1; padding-top: 2px; }
+    .up-next-info h4 { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.35; margin-bottom: 4px; }
+    .up-next-info p { font-size: 11px; color: var(--text-light); }
+
+    /* ===== WORKSHOPS SCREEN ===== */
+    .calendar-strip {
+      display: flex;
+      gap: 6px;
+      padding: 0 20px;
+      margin-bottom: 6px;
+    }
+    .cal-day {
+      flex: 1;
+      text-align: center;
+      padding: 10px 4px;
+      border-radius: 12px;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      transition: all var(--transition);
+    }
+    .cal-day.active {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+    .cal-day .day-name { font-size: 10px; font-weight: 600; color: var(--text-light); text-transform: uppercase; }
+    .cal-day .day-num { font-size: 18px; font-weight: 700; color: var(--text); margin-top: 2px; }
+    .cal-day.active .day-name, .cal-day.active .day-num { color: white; }
+    .cal-day .dot-indicator { width: 4px; height: 4px; border-radius: 50%; background: var(--accent); margin: 4px auto 0; }
+    .cal-day.active .dot-indicator { background: white; }
+
+    .event-card {
+      margin: 0 20px 12px;
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      padding: 16px;
+      border-left: 4px solid var(--accent);
+      box-shadow: var(--shadow);
+    }
+    .event-card.past { opacity: 0.6; border-left-color: var(--text-light); }
+    .event-time {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .event-time svg { width: 14px; height: 14px; }
+    .event-card h4 {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .event-card p {
+      font-size: 13px;
+      color: var(--text-sec);
+      line-height: 1.5;
+      margin-bottom: 12px;
+    }
+    .event-actions {
+      display: flex;
+      gap: 8px;
+    }
+    .event-btn {
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    .event-btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+    .event-btn-outline {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-sec);
+    }
+
+    .past-workshops-header {
+      padding: 16px 20px 10px;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    /* ===== PROGRESS SCREEN ===== */
+    .profile-header {
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      padding: 24px 20px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .profile-header::after {
+      content: '';
+      position: absolute;
+      right: -30px;
+      top: -30px;
+      width: 120px;
+      height: 120px;
+      background: radial-gradient(circle, rgba(77,179,131,0.15), transparent 70%);
+      border-radius: 50%;
+    }
+    .profile-avatar {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 12px;
+      font-size: 24px;
+      font-weight: 700;
+      color: white;
+      position: relative;
+      z-index: 1;
+    }
+    .profile-header h3 { font-size: 18px; font-weight: 700; color: #fff; position: relative; z-index: 1; }
+    .profile-header p { font-size: 13px; color: rgba(255,255,255,0.55); position: relative; z-index: 1; margin-top: 2px; }
+
+    .stats-row {
+      display: flex;
+      margin: -24px 20px 0;
+      position: relative;
+      z-index: 5;
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+    }
+    .stat-item {
+      flex: 1;
+      text-align: center;
+      padding: 18px 8px;
+    }
+    .stat-item + .stat-item { border-left: 1px solid var(--border); }
+    .stat-item h4 { font-size: 22px; font-weight: 800; color: var(--accent); }
+    .stat-item p { font-size: 11px; color: var(--text-light); margin-top: 2px; font-weight: 500; }
+
+    .streak-card {
+      margin: 20px 20px 0;
+      background: var(--warm-light);
+      border: 1px solid rgba(212,168,67,0.2);
+      border-radius: var(--radius);
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .streak-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: rgba(212,168,67,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+    .streak-info h4 { font-size: 14px; font-weight: 700; color: var(--text); }
+    .streak-info p { font-size: 12px; color: var(--text-sec); margin-top: 2px; }
+
+    /* Achievements */
+    .achievement-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      padding: 0 20px;
+    }
+    .achievement {
+      text-align: center;
+      padding: 16px 8px;
+      background: var(--bg-card);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+    }
+    .achievement .badge-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 8px;
+      font-size: 20px;
+    }
+    .achievement h5 { font-size: 11px; font-weight: 600; color: var(--text); }
+    .achievement p { font-size: 10px; color: var(--text-light); margin-top: 2px; }
+    .achievement.locked { opacity: 0.4; }
+
+    /* History list */
+    .history-item {
+      display: flex;
+      gap: 12px;
+      padding: 12px 20px;
+      align-items: center;
+    }
+    .history-item + .history-item { border-top: 1px solid var(--border); }
+    .history-check {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--accent-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .history-check svg { width: 14px; height: 14px; color: var(--accent); }
+    .history-info { flex: 1; }
+    .history-info h4 { font-size: 13px; font-weight: 600; color: var(--text); }
+    .history-info p { font-size: 11px; color: var(--text-light); margin-top: 2px; }
+    .history-time { font-size: 11px; color: var(--text-light); flex-shrink: 0; }
+
+    .bottom-pad { height: 20px; }
+
+    /* Gentle entrance animation */
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .screen.active > * {
+      animation: slideUp 0.35s ease-out;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page-title">
+    <h1>Abundance Financial Coaching</h1>
+    <p>Investor Education Mobile App &mdash; Interactive Prototype</p>
+  </div>
+
+  <div class="phone">
+    <div class="dynamic-island"></div>
+
+    <!-- Status Bar -->
+    <div class="status-bar">
+      <span class="time">9:41</span>
+      <div class="icons">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 4h-3V2h-4v2H7v18h10V4z"/></svg>
+      </div>
+    </div>
+
+    <!-- Screens Container -->
+    <div class="screens">
+
+      <!-- ==================== HOME SCREEN ==================== -->
+      <div class="screen active" id="screen-home">
+        <div class="home-header">
+          <div class="app-logo">
+            <svg viewBox="0 0 80 64" fill="none">
+              <path d="M26 2 L50 56 L2 56 Z" fill="#4A6E8E"/>
+              <path d="M46 12 L70 56 L22 56 Z" fill="#7DD4AA"/>
+              <path d="M36 32 L50 56 L22 56 Z" fill="#6BB89A"/>
+            </svg>
+            <div class="app-logo-text">
+              <span class="app-logo-name">Abundance</span>
+              <span class="app-logo-sub">Financial Coaching</span>
+            </div>
+          </div>
+          <div class="home-greeting">
+            <div>
+              <h2>Welcome back</h2>
+              <p class="home-sub">Continue your financial education</p>
+            </div>
+            <div class="avatar">JD</div>
+          </div>
+        </div>
+
+        <!-- Featured Video -->
+        <div class="featured-video">
+          <div class="featured-card">
+            <div class="featured-thumb" onclick="switchScreen('player')">
+              <span class="featured-label"><span class="tag tag-green">New</span></span>
+              <div class="play-btn">
+                <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              </div>
+              <span class="featured-duration">12:34</span>
+            </div>
+            <div class="featured-body">
+              <h3>Navigating Market Volatility: What Every Investor Needs to Know</h3>
+              <p>Understanding how to stay the course during market uncertainty and protect your long-term goals.</p>
+              <div class="featured-meta">
+                <span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                  12 min
+                </span>
+                <span>Mar 25, 2026</span>
+                <span>&middot; Abundance Team</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Category pills -->
+        <div class="category-scroll">
+          <button class="cat-pill active">All</button>
+          <button class="cat-pill">Retirement</button>
+          <button class="cat-pill">Investing</button>
+          <button class="cat-pill">Tax Strategy</button>
+          <button class="cat-pill">Estate</button>
+          <button class="cat-pill">Markets</button>
+        </div>
+
+        <!-- Continue Watching -->
+        <div class="section-title">
+          <h3>Continue Watching</h3>
+          <a href="#">See All</a>
+        </div>
+        <div class="continue-row">
+          <div class="continue-card" onclick="switchScreen('player')">
+            <div class="continue-thumb" style="background: linear-gradient(135deg, #2D6B5E, #4DB383);">
+              <div class="mini-play"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
+            </div>
+            <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 65%;"></div></div>
+            <div class="continue-info">
+              <h4>Understanding Index Funds vs. Active Portfolios</h4>
+              <p>8 min left &middot; Investing</p>
+            </div>
+          </div>
+          <div class="continue-card" onclick="switchScreen('player')">
+            <div class="continue-thumb" style="background: linear-gradient(135deg, #5B3E96, #7C5BB8);">
+              <div class="mini-play"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
+            </div>
+            <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 30%;"></div></div>
+            <div class="continue-info">
+              <h4>Roth Conversions in 2026: Is Now the Right Time?</h4>
+              <p>14 min left &middot; Tax Strategy</p>
+            </div>
+          </div>
+          <div class="continue-card" onclick="switchScreen('player')">
+            <div class="continue-thumb" style="background: linear-gradient(135deg, #B08C30, #D4A843);">
+              <div class="mini-play"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
+            </div>
+            <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 80%;"></div></div>
+            <div class="continue-info">
+              <h4>Social Security: When to Claim for Maximum Benefit</h4>
+              <p>3 min left &middot; Retirement</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Upcoming Workshop -->
+        <div class="section-title">
+          <h3>Upcoming Workshop</h3>
+          <a href="#" onclick="switchScreen('workshops'); return false;">Calendar</a>
+        </div>
+        <div class="workshop-card" onclick="switchScreen('workshops')">
+          <div class="wk-label">Live Event &middot; April 3, 2026</div>
+          <h4>Q1 Market Review & 2026 Outlook</h4>
+          <p>Join our team for a live discussion of Q1 performance and what to watch in Q2.</p>
+          <div class="wk-cta">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            Reserve Your Spot
+          </div>
+        </div>
+
+        <div class="bottom-pad"></div>
+      </div>
+
+      <!-- ==================== LIBRARY SCREEN ==================== -->
+      <div class="screen" id="screen-library">
+        <div class="screen-header">
+          <h2>Video Library</h2>
+          <div class="search-bar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input type="text" placeholder="Search videos, topics...">
+          </div>
+        </div>
+
+        <!-- Browse by Topic -->
+        <div class="section-title"><h3>Browse by Topic</h3></div>
+        <div class="topic-grid">
+          <div class="topic-item">
+            <div class="topic-icon" style="background: var(--accent-light);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+            </div>
+            <span>Retirement</span>
+          </div>
+          <div class="topic-item">
+            <div class="topic-icon" style="background: #E8F0FE;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#3B72D9" stroke-width="1.8"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+            </div>
+            <span>Investing</span>
+          </div>
+          <div class="topic-item">
+            <div class="topic-icon" style="background: #FDE8E8;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="1.8"><path d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <span>Tax</span>
+          </div>
+          <div class="topic-item">
+            <div class="topic-icon" style="background: var(--warm-light);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="var(--warm)" stroke-width="1.8"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            </div>
+            <span>Estate</span>
+          </div>
+        </div>
+
+        <!-- Recent Videos -->
+        <div class="section-title"><h3>Recent Videos</h3><a href="#">Filter</a></div>
+        <div class="lib-grid">
+          <div class="lib-card" onclick="switchScreen('player')">
+            <div class="lib-thumb" style="background: linear-gradient(135deg, #0F2640, #1B3A5C);">
+              <div class="mini-play"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
+              <span class="lib-dur">12:34</span>
+            </div>
+            <div class="lib-body">
+              <span class="tag tag-green" style="margin-bottom:6px;">New</span>
+              <h4>Navigating Market Volatility</h4>
+              <p class="lib-meta">Mar 25 &middot; Markets</p>
+            </div>
+          </div>
+          <div class="lib-card" onclick="switchScreen('player')">
+            <div class="lib-thumb" style="background: linear-gradient(135deg, #2D6B5E, #4DB383);">
+              <div class="mini-play"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
+              <span class="lib-dur">18:22</span>
+            </div>
+            <div class="lib-body">
+              <h4>Index Funds vs. Active Management</h4>
+              <p class="lib-meta">Mar 20 &middot; Investing</p>
+            </div>
+          </div>
+          <div class="lib-card" onclick="switchScreen('player')">
+            <div class="lib-thumb" style="background: linear-gradient(135deg, #5B3E96, #7C5BB8);">
+              <div class="mini-play"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
+              <span class="lib-dur">15:10</span>
+            </div>
+            <div class="lib-body">
+              <h4>Roth Conversions in 2026</h4>
+              <p class="lib-meta">Mar 18 &middot; Tax Strategy</p>
+            </div>
+          </div>
+          <div class="lib-card" onclick="switchScreen('player')">
+            <div class="lib-thumb" style="background: linear-gradient(135deg, #B08C30, #D4A843);">
+              <div class="mini-play"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
+              <span class="lib-dur">20:45</span>
+            </div>
+            <div class="lib-body">
+              <h4>Social Security: When to Claim</h4>
+              <p class="lib-meta">Mar 15 &middot; Retirement</p>
+            </div>
+          </div>
+          <div class="lib-card" onclick="switchScreen('player')">
+            <div class="lib-thumb" style="background: linear-gradient(135deg, #3B72D9, #5B92E9);">
+              <div class="mini-play"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
+              <span class="lib-dur">10:18</span>
+            </div>
+            <div class="lib-body">
+              <h4>Emergency Funds: How Much Is Enough?</h4>
+              <p class="lib-meta">Mar 12 &middot; Planning</p>
+            </div>
+          </div>
+          <div class="lib-card" onclick="switchScreen('player')">
+            <div class="lib-thumb" style="background: linear-gradient(135deg, #C0392B, #E05555);">
+              <div class="mini-play"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
+              <span class="lib-dur">14:56</span>
+            </div>
+            <div class="lib-body">
+              <h4>Medicare Enrollment Walkthrough</h4>
+              <p class="lib-meta">Mar 10 &middot; Retirement</p>
+            </div>
+          </div>
+        </div>
+        <div class="bottom-pad"></div>
+      </div>
+
+      <!-- ==================== PLAYER SCREEN ==================== -->
+      <div class="screen" id="screen-player">
+        <div class="player-video" id="video-container">
+          <video
+            id="app-video"
+            controls
+            playsinline
+            preload="metadata"
+            crossorigin="anonymous"
+          >
+            <source src="https://dl.dropboxusercontent.com/scl/fi/peywt57kv5b38t19unsvt/DuffyMarket.mp4?rlkey=28uay9yw3k5qx04gj9dlob5o2&st=o7a6h6dv" type="video/mp4">
+          </video>
+        </div>
+
+        <div class="player-info">
+          <span class="tag tag-green">Market Insights</span>
+          <h2>Duffy Market Update: What Every Investor Needs to Know</h2>
+          <p>In this video, our team discusses current market conditions, practical strategies for weathering volatility, and smart decisions to protect your long-term goals.</p>
+
+          <div class="player-actions">
+            <div class="player-action-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
+              <span>Save</span>
+            </div>
+            <div class="player-action-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13"/></svg>
+              <span>Share</span>
+            </div>
+            <div class="player-action-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+              <span>Download</span>
+            </div>
+            <div class="player-action-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+              <span>Notes</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="player-divider"></div>
+
+        <div style="padding: 0 20px 8px;">
+          <h3 style="font-size: 15px; font-weight: 700; color: var(--text);">Up Next</h3>
+        </div>
+
+        <div class="up-next-item" onclick="switchScreen('player')">
+          <div class="up-next-thumb" style="background: linear-gradient(135deg, #2D6B5E, #4DB383);">
+            <div class="mini-play"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
+          </div>
+          <div class="up-next-info">
+            <h4>Index Funds vs. Active Management Explained</h4>
+            <p>18 min &middot; Investing</p>
+          </div>
+        </div>
+        <div class="up-next-item" onclick="switchScreen('player')">
+          <div class="up-next-thumb" style="background: linear-gradient(135deg, #5B3E96, #7C5BB8);">
+            <div class="mini-play"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
+          </div>
+          <div class="up-next-info">
+            <h4>Roth Conversions in 2026: Is Now the Right Time?</h4>
+            <p>15 min &middot; Tax Strategy</p>
+          </div>
+        </div>
+        <div class="up-next-item" onclick="switchScreen('player')">
+          <div class="up-next-thumb" style="background: linear-gradient(135deg, #B08C30, #D4A843);">
+            <div class="mini-play"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
+          </div>
+          <div class="up-next-info">
+            <h4>Social Security: When to Claim for Max Benefit</h4>
+            <p>20 min &middot; Retirement</p>
+          </div>
+        </div>
+        <div class="bottom-pad"></div>
+      </div>
+
+      <!-- ==================== WORKSHOPS SCREEN ==================== -->
+      <div class="screen" id="screen-workshops">
+        <div class="screen-header">
+          <h2>Workshops</h2>
+        </div>
+
+        <div class="section-title"><h3>March 2026</h3></div>
+        <div class="calendar-strip">
+          <div class="cal-day">
+            <div class="day-name">Mon</div>
+            <div class="day-num">24</div>
+          </div>
+          <div class="cal-day">
+            <div class="day-name">Tue</div>
+            <div class="day-num">25</div>
+          </div>
+          <div class="cal-day">
+            <div class="day-name">Wed</div>
+            <div class="day-num">26</div>
+          </div>
+          <div class="cal-day active">
+            <div class="day-name">Thu</div>
+            <div class="day-num">27</div>
+            <div class="dot-indicator"></div>
+          </div>
+          <div class="cal-day">
+            <div class="day-name">Fri</div>
+            <div class="day-num">28</div>
+          </div>
+          <div class="cal-day">
+            <div class="day-name">Sat</div>
+            <div class="day-num">29</div>
+          </div>
+          <div class="cal-day">
+            <div class="day-name">Sun</div>
+            <div class="day-num">30</div>
+          </div>
+        </div>
+
+        <div class="section-title"><h3>Upcoming Events</h3></div>
+
+        <div class="event-card">
+          <div class="event-time">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            Apr 3 &middot; 6:00 PM CT &middot; <span class="tag tag-live" style="font-size:9px; padding: 2px 7px;">LIVE</span>
+          </div>
+          <h4>Q1 Market Review & 2026 Outlook</h4>
+          <p>Live walkthrough of Q1 performance, interest rate trends, and positioning your portfolio for Q2.</p>
+          <div class="event-actions">
+            <button class="event-btn event-btn-primary">Reserve Spot</button>
+            <button class="event-btn event-btn-outline">Add to Calendar</button>
+          </div>
+        </div>
+
+        <div class="event-card">
+          <div class="event-time">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            Apr 17 &middot; 12:00 PM CT
+          </div>
+          <h4>Retirement Income Planning Workshop</h4>
+          <p>Learn how to create a sustainable income stream from your retirement accounts.</p>
+          <div class="event-actions">
+            <button class="event-btn event-btn-primary">Reserve Spot</button>
+            <button class="event-btn event-btn-outline">Add to Calendar</button>
+          </div>
+        </div>
+
+        <div class="past-workshops-header">Past Workshop Recordings</div>
+
+        <div class="event-card past">
+          <div class="event-time" style="color: var(--text-light);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            Mar 13 &middot; Recorded
+          </div>
+          <h4>Tax-Smart Strategies Before April 15th</h4>
+          <p>Last-minute moves to reduce your 2025 tax liability.</p>
+          <div class="event-actions">
+            <button class="event-btn event-btn-primary" onclick="switchScreen('player')">Watch Recording</button>
+          </div>
+        </div>
+
+        <div class="event-card past">
+          <div class="event-time" style="color: var(--text-light);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            Feb 20 &middot; Recorded
+          </div>
+          <h4>Estate Planning 101: Protecting Your Legacy</h4>
+          <p>Wills, trusts, and beneficiary designations explained simply.</p>
+          <div class="event-actions">
+            <button class="event-btn event-btn-primary" onclick="switchScreen('player')">Watch Recording</button>
+          </div>
+        </div>
+        <div class="bottom-pad"></div>
+      </div>
+
+      <!-- ==================== PROGRESS SCREEN ==================== -->
+      <div class="screen" id="screen-progress">
+        <div class="profile-header">
+          <div class="profile-avatar">JD</div>
+          <h3>John Doe</h3>
+          <p>Member since January 2024</p>
+        </div>
+
+        <div class="stats-row">
+          <div class="stat-item">
+            <h4>24</h4>
+            <p>Videos Watched</p>
+          </div>
+          <div class="stat-item">
+            <h4>5.2</h4>
+            <p>Hours Learned</p>
+          </div>
+          <div class="stat-item">
+            <h4>8</h4>
+            <p>Workshops</p>
+          </div>
+        </div>
+
+        <div class="streak-card">
+          <div class="streak-icon">🔥</div>
+          <div class="streak-info">
+            <h4>3-Week Learning Streak!</h4>
+            <p>You've watched at least 1 video each week. Keep going!</p>
+          </div>
+        </div>
+
+        <!-- Achievements -->
+        <div class="section-title"><h3>Achievements</h3></div>
+        <div class="achievement-grid">
+          <div class="achievement">
+            <div class="badge-icon" style="background: var(--accent-light);">🎓</div>
+            <h5>First Video</h5>
+            <p>Completed</p>
+          </div>
+          <div class="achievement">
+            <div class="badge-icon" style="background: var(--warm-light);">📊</div>
+            <h5>Market Pro</h5>
+            <p>10 videos</p>
+          </div>
+          <div class="achievement">
+            <div class="badge-icon" style="background: #E8F0FE;">🏆</div>
+            <h5>Workshop Regular</h5>
+            <p>5 attended</p>
+          </div>
+          <div class="achievement locked">
+            <div class="badge-icon" style="background: var(--bg-light);">🔒</div>
+            <h5>Retirement Ready</h5>
+            <p>All retirement</p>
+          </div>
+          <div class="achievement locked">
+            <div class="badge-icon" style="background: var(--bg-light);">🔒</div>
+            <h5>Tax Expert</h5>
+            <p>All tax videos</p>
+          </div>
+          <div class="achievement locked">
+            <div class="badge-icon" style="background: var(--bg-light);">🔒</div>
+            <h5>Completionist</h5>
+            <p>All videos</p>
+          </div>
+        </div>
+
+        <!-- Watch History -->
+        <div class="section-title"><h3>Recent Activity</h3></div>
+        <div class="history-item">
+          <div class="history-check">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="history-info">
+            <h4>Navigating Market Volatility</h4>
+            <p>Completed &middot; Markets</p>
+          </div>
+          <span class="history-time">Today</span>
+        </div>
+        <div class="history-item">
+          <div class="history-check">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="history-info">
+            <h4>Emergency Funds: How Much?</h4>
+            <p>Completed &middot; Planning</p>
+          </div>
+          <span class="history-time">Yesterday</span>
+        </div>
+        <div class="history-item">
+          <div class="history-check">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="history-info">
+            <h4>Tax-Smart Workshop (Live)</h4>
+            <p>Attended &middot; Workshop</p>
+          </div>
+          <span class="history-time">Mar 13</span>
+        </div>
+        <div class="bottom-pad"></div>
+      </div>
+
+    </div>
+
+    <!-- TAB BAR -->
+    <div class="tab-bar">
+      <button class="tab active" onclick="switchScreen('home')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        <span>Home</span>
+      </button>
+      <button class="tab" onclick="switchScreen('library')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+        <span>Library</span>
+      </button>
+      <button class="tab" onclick="switchScreen('workshops')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        <span>Workshops</span>
+      </button>
+      <button class="tab" onclick="switchScreen('progress')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>Progress</span>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    function switchScreen(name) {
+      // Update screens
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      const target = document.getElementById('screen-' + name);
+      if (target) {
+        target.classList.add('active');
+        target.scrollTop = 0;
+      }
+
+      // Update tabs
+      const tabMap = { home: 0, library: 1, workshops: 2, progress: 3, player: -1 };
+      document.querySelectorAll('.tab').forEach((tab, i) => {
+        tab.classList.toggle('active', i === tabMap[name]);
+      });
+
+      // Video is handled by BombBomb's hosted player via iframe
+    }
+
+    // Category pill toggle
+    document.querySelectorAll('.cat-pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+      });
+    });
+
+    // Calendar day toggle
+    document.querySelectorAll('.cal-day').forEach(day => {
+      day.addEventListener('click', () => {
+        document.querySelectorAll('.cal-day').forEach(d => d.classList.remove('active'));
+        day.classList.add('active');
+      });
+    });
+  </script>
+
+</body>
+</html>
